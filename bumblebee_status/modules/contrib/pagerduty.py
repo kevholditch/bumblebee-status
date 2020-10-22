@@ -40,7 +40,7 @@ class Module(core.module.Module):
         core.input.register(
             self,
             button=core.input.LEFT_MOUSE,
-            cmd="{} https://form3.pagerduty.com/schedules#{}}".format(cmd, self.__scheduleId),
+            cmd="{} https://form3.pagerduty.com/schedules#{}".format(cmd, self.__scheduleId),
         )
 
     def pagerduty(self, _):
@@ -57,7 +57,7 @@ class Module(core.module.Module):
                 self.__label = "error"
                 return
 
-            self.__label = r.json()["users"][0]["name"]
+            self.__label = " " + r.json()["users"][0]["name"]
 
 
         except Exception as err:
