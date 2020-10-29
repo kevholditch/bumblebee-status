@@ -13,6 +13,7 @@ import core.decorators
 import core.input
 
 import util.format
+import re
 from datetime import datetime, timedelta
 
 
@@ -31,7 +32,13 @@ class Module(core.module.Module):
             "Content-Type": "application/json"
         })
 
+        self.__workspace = self.parameter("workspace", "")
         self.__scheduleId = self.parameter("scheduleId", "")
+        if self.parameter("format", "fullname").lower() == "initials":
+            self.__format_func = lambda name: "".join(list(map(lambda x: x[0], re.findall(r"[\w']+", name))))
+        else:
+            self.__format_func = lambda x: x
+
 
         cmd = "xdg-open"
         if not shutil.which(cmd):
@@ -40,7 +47,7 @@ class Module(core.module.Module):
         core.input.register(
             self,
             button=core.input.LEFT_MOUSE,
-            cmd="{} https://form3.pagerduty.com/schedules#{}".format(cmd, self.__scheduleId),
+            cmd="{} https://{}.pagerduty.com/schedules#{}".format(cmd, self.__workspace, self.__scheduleId),
         )
 
     def pagerduty(self, _):
@@ -57,7 +64,7 @@ class Module(core.module.Module):
                 self.__label = "error"
                 return
 
-            self.__label = " " + r.json()["users"][0]["name"]
+            self.__label = " " + self.__format_func(r.json()["users"][0]["name"])
 
 
         except Exception as err:
